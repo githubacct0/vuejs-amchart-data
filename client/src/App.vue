@@ -14,7 +14,11 @@ import Footer from "@/layout/Footer";
 
 export default {
   name: "App",
-
+  data() {
+    return {
+      // tabs: null,
+    };
+  },
   components: {
     Header,
     Footer,
