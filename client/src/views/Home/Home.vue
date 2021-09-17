@@ -11,7 +11,7 @@
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
-import object_data from "../../../../modelVersionData/291_03.json";
+// import object_data from "../../../../modelVersionData/291_03.json";
 am4core.useTheme(am4themes_animated);
 
 export default {
@@ -19,37 +19,77 @@ export default {
   mounted() {
     let chart = am4core.create(this.$refs.chartdiv, am4charts.XYChart);
 
-    chart.paddingRight = 20;
-
-    // demo data
-
-    let test_data = object_data.data.getModelMetrics.cagrReturns;
-    let data = [];
-    for (let i = 0; i < test_data.length; i++) {
-      const date_breaker = new Date(test_data[i].effectiveDate).toUTCString();
-      const value_breaker = test_data[i].spreadReturn;
-      data.push({ date: date_breaker, value: value_breaker });
+    var data = [];
+    var price1 = 1000,
+      price2 = 1200;
+    // var quantity = 30000;
+    for (var i = 0; i < 360; i++) {
+      price1 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 100);
+      data.push({ date1: new Date(2015, 0, i), price1: price1 });
+    }
+    // eslint-disable-next-line no-redeclare
+    for (var i = 0; i < 360; i++) {
+      price2 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 100);
+      data.push({ date2: new Date(2017, 0, i), price2: price2 });
     }
 
     chart.data = data;
 
-    let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+    var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
     dateAxis.renderer.grid.template.location = 0;
+    dateAxis.renderer.labels.template.fill = am4core.color("#e59165");
 
-    let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+    var dateAxis2 = chart.xAxes.push(new am4charts.DateAxis());
+    dateAxis2.renderer.grid.template.location = 0;
+    dateAxis2.renderer.labels.template.fill = am4core.color("#dfcc64");
+
+    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
     valueAxis.tooltip.disabled = true;
-    valueAxis.renderer.minWidth = 35;
+    valueAxis.renderer.labels.template.fill = am4core.color("#e59165");
 
-    let series = chart.series.push(new am4charts.LineSeries());
-    series.dataFields.dateX = "date";
-    series.dataFields.valueY = "value";
+    valueAxis.renderer.minWidth = 60;
 
+    var valueAxis2 = chart.yAxes.push(new am4charts.ValueAxis());
+    valueAxis2.tooltip.disabled = true;
+    valueAxis2.renderer.labels.template.fill = am4core.color("#dfcc64");
+    valueAxis2.renderer.minWidth = 60;
+    valueAxis2.syncWithAxis = valueAxis;
+
+    var series = chart.series.push(new am4charts.LineSeries());
+    series.name = "2015";
+    series.dataFields.dateX = "date1";
+    series.dataFields.valueY = "price1";
     series.tooltipText = "{valueY.value}";
-    chart.cursor = new am4charts.XYCursor();
+    series.fill = am4core.color("#e59165");
+    series.stroke = am4core.color("#e59165");
+    //series.strokeWidth = 3;
 
-    let scrollbarX = new am4charts.XYChartScrollbar();
+    var series2 = chart.series.push(new am4charts.LineSeries());
+    series2.name = "2017";
+    series2.dataFields.dateX = "date2";
+    series2.dataFields.valueY = "price2";
+    series2.yAxis = valueAxis2;
+    series2.xAxis = dateAxis2;
+    series2.tooltipText = "{valueY.value}";
+    series2.fill = am4core.color("#dfcc64");
+    series2.stroke = am4core.color("#dfcc64");
+    //series2.strokeWidth = 3;
+
+    chart.cursor = new am4charts.XYCursor();
+    chart.cursor.xAxis = dateAxis2;
+
+    var scrollbarX = new am4charts.XYChartScrollbar();
     scrollbarX.series.push(series);
     chart.scrollbarX = scrollbarX;
+
+    chart.legend = new am4charts.Legend();
+    chart.legend.parent = chart.plotContainer;
+    chart.legend.zIndex = 100;
+
+    valueAxis2.renderer.grid.template.strokeOpacity = 0.07;
+    dateAxis2.renderer.grid.template.strokeOpacity = 0.07;
+    dateAxis.renderer.grid.template.strokeOpacity = 0.07;
+    valueAxis.renderer.grid.template.strokeOpacity = 0.07;
 
     this.chart = chart;
   },
