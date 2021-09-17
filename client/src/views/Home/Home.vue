@@ -11,27 +11,33 @@
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
-// import object_data from "../../../../modelVersionData/291_03.json";
+import object_data_1 from "../../../../modelVersionData/290_16.json";
+import object_data_2 from "../../../../modelVersionData/291_03.json";
 am4core.useTheme(am4themes_animated);
 
 export default {
   name: "HelloWorld",
   mounted() {
     let chart = am4core.create(this.$refs.chartdiv, am4charts.XYChart);
+    let data = [];
+    let data_1 = object_data_1.data.getModelMetrics.cagrReturns;
+    let data_2 = object_data_2.data.getModelMetrics.cagrReturns;
+    for (let i = 0; i < data_1.length; i++) {
+      const date_breaker = new Date(data_1[i].effectiveDate).toUTCString();
+      const value_breaker = data_1[i].spreadReturn;
+      data.push({ date1: date_breaker, value1: value_breaker });
+    }
+    for (let i = 0; i < data_2.length; i++) {
+      const date_breaker = new Date(data_2[i].effectiveDate).toUTCString();
+      const value_breaker = data_2[i].spreadReturn;
+      data.push({ date1: date_breaker, value1: value_breaker });
+    }
 
-    var data = [];
-    var price1 = 1000,
-      price2 = 1200;
-    // var quantity = 30000;
-    for (var i = 0; i < 360; i++) {
-      price1 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 100);
-      data.push({ date1: new Date(2015, 0, i), price1: price1 });
-    }
     // eslint-disable-next-line no-redeclare
-    for (var i = 0; i < 360; i++) {
-      price2 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 100);
-      data.push({ date2: new Date(2017, 0, i), price2: price2 });
-    }
+    // for (var i = 0; i < 360; i++) {
+    //   price2 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 100);
+    //   data.push({ date2: new Date(2017, 0, i), price2: price2 });
+    // }
 
     chart.data = data;
 
@@ -58,7 +64,7 @@ export default {
     var series = chart.series.push(new am4charts.LineSeries());
     series.name = "2015";
     series.dataFields.dateX = "date1";
-    series.dataFields.valueY = "price1";
+    series.dataFields.valueY = "value1";
     series.tooltipText = "{valueY.value}";
     series.fill = am4core.color("#e59165");
     series.stroke = am4core.color("#e59165");
@@ -67,7 +73,7 @@ export default {
     var series2 = chart.series.push(new am4charts.LineSeries());
     series2.name = "2017";
     series2.dataFields.dateX = "date2";
-    series2.dataFields.valueY = "price2";
+    series2.dataFields.valueY = "value2";
     series2.yAxis = valueAxis2;
     series2.xAxis = dateAxis2;
     series2.tooltipText = "{valueY.value}";
