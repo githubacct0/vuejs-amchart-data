@@ -10,10 +10,10 @@
 <script>
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
-import am4themes_animated from "@amcharts/amcharts4/themes/animated";
+// import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 import object_data_1 from "../../../../modelVersionData/290_16.json";
 import object_data_2 from "../../../../modelVersionData/291_03.json";
-am4core.useTheme(am4themes_animated);
+// am4core.useTheme(am4themes_animated);
 
 export default {
   name: "HelloWorld",
@@ -30,7 +30,7 @@ export default {
     for (let i = 0; i < data_2.length; i++) {
       const date_breaker = new Date(data_2[i].effectiveDate).toUTCString();
       const value_breaker = data_2[i].spreadReturn;
-      data.push({ date1: date_breaker, value1: value_breaker });
+      data.push({ date2: date_breaker, value2: value_breaker });
     }
 
     // eslint-disable-next-line no-redeclare
