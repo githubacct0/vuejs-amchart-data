@@ -11,7 +11,7 @@
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
-import object_data from "../../../../modelVersionData/290_16.json";
+import object_data from "../../../../modelVersionData/291_03.json";
 am4core.useTheme(am4themes_animated);
 
 export default {
@@ -21,14 +21,16 @@ export default {
 
     chart.paddingRight = 20;
 
+    // demo data
+
+    let test_data = object_data.data.getModelMetrics.cagrReturns;
     let data = [];
-    let visits = 10;
-    for (let i = 1; i < 366; i++) {
-      visits += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
-      data.push({ date: new Date(2018, 0, i), value: visits });
+    for (let i = 0; i < test_data.length; i++) {
+      const date_breaker = new Date(test_data[i].effectiveDate).toUTCString();
+      const value_breaker = test_data[i].spreadReturn;
+      data.push({ date: date_breaker, value: value_breaker });
     }
 
-    console.log(data);
     chart.data = data;
 
     let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
