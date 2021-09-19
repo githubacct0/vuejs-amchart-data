@@ -18,7 +18,7 @@
           <v-btn elevation="1" value="max"> MAX </v-btn>
         </v-btn-toggle>
       </v-flex>
-      <v-flex xs3 sm3>
+      <v-flex xs2 sm2>
         <v-menu
           ref="menu"
           v-model="startDateMenu"
@@ -57,7 +57,7 @@
           </v-date-picker>
         </v-menu>
       </v-flex>
-      <v-flex xs3 sm3>
+      <v-flex xs2 sm2>
         <v-menu
           ref="menu1"
           v-model="endDateMenu"
@@ -100,6 +100,7 @@
           </v-date-picker>
         </v-menu>
       </v-flex>
+      <v-flex xs2 sm2></v-flex>
     </v-layout>
 
     <!-- bottom padding 48px because of fixed footer -->
@@ -130,8 +131,8 @@ export default {
   props: {
     highLightModule: {
       required: false,
-      type: String,
-      default: "",
+      type: Array,
+      default: ()=>[],
     },
     modelData: {
       required: false,
@@ -218,10 +219,9 @@ export default {
       let data = [];
       //let data_1 = this.modelData[0].data.getModelMetrics.cagrReturns; //object_data_1.data.getModelMetrics.cagrReturns;
       //let data_2 = this.modelData[1].data.getModelMetrics.cagrReturns; //object_data_2.data.getModelMetrics.cagrReturns;
-
+      this.highLightModuleData = this.modelData[0];
       this.modelData.forEach((modelData, index) => {
         let cagrReturns = modelData.data.getModelMetrics.cagrReturns;
-        let versionName = modelData.data.getModelMetrics.modelVersionName;
         for (let i = cagrReturns.length - 1; i >= 0; i--) {
           const date_breaker = new Date(cagrReturns[i].effectiveDate); //.toUTCString();
           const value_breaker = cagrReturns[i].spreadReturn;
@@ -230,8 +230,6 @@ export default {
             ["value" + index + 1]: this.RoundNumber(value_breaker),
           });
         }
-        if (this.highLightModule == versionName)
-          this.highLightModuleData = modelData;
       });
 
       //   for (let i = data_2.length - 1; i >= 0; i--) {
@@ -260,9 +258,14 @@ export default {
       valueAxis.renderer.labels.template.fill = am4core.color("#e59165");
 
       //valueAxis.renderer.minWidth = 200;
-      //let greyHex = "#808080";
-      //let modelVersionName;
-      //let selectedSeeries;
+      let colorsToPickFrom = [        
+        "#0064ba",
+        "#69cb69",
+        "#ffa72",
+        "#bb5900",
+        "#f5cb42",
+        "#f5cb42",
+      ];
       this.modelData.forEach((data, index) => {
         var series = chart.series.push(new am4charts.LineSeries());
         series.dataFields.dateX = "date" + index + 1;
@@ -270,18 +273,16 @@ export default {
         let versionName = data.data.getModelMetrics.modelVersionName;
         series.tooltipText = `{valueY}`;
         series.strokeWidth = 3;
-        //reduce opacity if highLightModule not matched
-        if (this.highLightModule != versionName) {
-          series.tooltip.background.opacity = 0.2;
-          series.strokeOpacity = 0.2;
-          series.strokeWidth = 1;
-          //series.fill = am4core.color(greyHex);
-          //series.stroke = am4core.color(greyHex);
+        if (colorsToPickFrom[index]) {
+          series.fill = am4core.color(colorsToPickFrom[index]);
+          series.stroke = am4core.color(colorsToPickFrom[index]);
         }
-        // else {
-        //   selectedSeeries = series;
-        //   modelVersionName = versionName;
-        // }
+        //reduce opacity if highLightModule not matched
+        if (!this.highLightModule.includes(versionName)) {
+        //   series.tooltip.background.opacity = 0.2;
+        //   series.strokeOpacity = 0.2;
+          series.strokeWidth = 1;
+        }
       });
 
       //   var series = chart.series.push(new am4charts.LineSeries());
@@ -352,15 +353,17 @@ export default {
       chart.scrollbarX = new am4core.Scrollbar();
       let gripFillColorHex = "#c1c1c1";
       let strokeColorHex = "#8b8b8b";
-      chart.scrollbarX.startGrip.background.fill = am4core.color(gripFillColorHex);
-      chart.scrollbarX.endGrip.background.fill = am4core.color(gripFillColorHex);
+      chart.scrollbarX.startGrip.background.fill =
+        am4core.color(gripFillColorHex);
+      chart.scrollbarX.endGrip.background.fill =
+        am4core.color(gripFillColorHex);
       chart.scrollbarX.thumb.background.fill = am4core.color(gripFillColorHex);
 
       chart.scrollbarX.startGrip.icon.stroke = am4core.color(strokeColorHex);
       chart.scrollbarX.endGrip.icon.stroke = am4core.color(strokeColorHex);
 
-let hoverColorHex = "#8b8b8b";
-let gripColorHex = "#727272";
+      let hoverColorHex = "#8b8b8b";
+      let gripColorHex = "#727272";
       // Applied on hover
       chart.scrollbarX.startGrip.background.states.getKey(
         "hover"
@@ -385,8 +388,10 @@ let gripColorHex = "#727272";
       // Add scrollbar
       chart.scrollbarY = new am4core.Scrollbar();
 
-      chart.scrollbarY.startGrip.background.fill = am4core.color(gripFillColorHex);
-      chart.scrollbarY.endGrip.background.fill = am4core.color(gripFillColorHex);
+      chart.scrollbarY.startGrip.background.fill =
+        am4core.color(gripFillColorHex);
+      chart.scrollbarY.endGrip.background.fill =
+        am4core.color(gripFillColorHex);
       chart.scrollbarY.thumb.background.fill = am4core.color(gripFillColorHex);
 
       chart.scrollbarY.startGrip.icon.stroke = am4core.color(strokeColorHex);

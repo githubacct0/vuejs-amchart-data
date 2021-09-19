@@ -1,7 +1,7 @@
 <template>
   <div>
     <SeriesChart
-      highLightModule="models/290/versions/16"
+      :highLightModule="highLightModules"
       :modelData="modelData"
       @drawComplete="emptyModelData"
     />
@@ -29,6 +29,9 @@ export default {
     emptyChartData: false,
   }),
   computed: {
+    highLightModules(){
+      return ['models/290/versions/16']
+    },
     modelData() {
       if (this.emptyChartData) return [];
       return [object_data_1, object_data_2, object_data_3, object_data_4];
