@@ -1,25 +1,27 @@
 <template>
   <div>
-    <v-row align="center" justify="center">
-      <v-btn-toggle
-        v-model="zoomOption"
-        @change="zoomOptionSelected"
-        color="primary"
-        group
-      >
-        <v-btn elevation="1" value="1w"> 1W </v-btn>
-        <v-btn elevation="1" value="1m"> 1M </v-btn>
-        <v-btn elevation="1" value="3m"> 3M </v-btn>
-        <v-btn elevation="1" value="6m"> 6M </v-btn>
-        <v-btn elevation="1" value="1y"> 1Y </v-btn>
-        <v-btn elevation="1" value="2y"> 2Y </v-btn>
-        <v-btn elevation="1" value="3y"> 3Y </v-btn>
-        <v-btn elevation="1" value="max"> MAX </v-btn>
-      </v-btn-toggle>
-      <v-col cols="12" sm="6" md="4">
+    <v-layout>
+      <v-flex xs6 sm6>
+        <v-btn-toggle
+          v-model="zoomOption"
+          @change="zoomOptionSelected"
+          color="primary"
+          group
+        >
+          <v-btn elevation="1" value="1w"> 1W </v-btn>
+          <v-btn elevation="1" value="1m"> 1M </v-btn>
+          <v-btn elevation="1" value="3m"> 3M </v-btn>
+          <v-btn elevation="1" value="6m"> 6M </v-btn>
+          <v-btn elevation="1" value="1y"> 1Y </v-btn>
+          <v-btn elevation="1" value="2y"> 2Y </v-btn>
+          <v-btn elevation="1" value="3y"> 3Y </v-btn>
+          <v-btn elevation="1" value="max"> MAX </v-btn>
+        </v-btn-toggle>
+      </v-flex>
+      <v-flex xs3 sm3>
         <v-menu
           ref="menu"
-          v-model="menu"
+          v-model="startDateMenu"
           :close-on-content-click="false"
           :return-value.sync="calendarDate"
           transition="scale-transition"
@@ -29,7 +31,7 @@
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
               v-model="calendarDate"
-              label="Chart Range Select"
+              label="From"
               prepend-icon="mdi-calendar"
               readonly
               v-bind="attrs"
@@ -44,17 +46,62 @@
             v-model="calendarDate"
             no-title
             scrollable
-            range
           >
             <v-spacer></v-spacer>
-            <v-btn text color="primary" @click="menu = false"> Cancel </v-btn>
+            <v-btn text color="primary" @click="startDateMenu = false">
+              Cancel
+            </v-btn>
             <v-btn text color="primary" @click="$refs.menu.save(calendarDate)">
               OK
             </v-btn>
           </v-date-picker>
         </v-menu>
-      </v-col>
-    </v-row>
+      </v-flex>
+      <v-flex xs3 sm3>
+        <v-menu
+          ref="menu1"
+          v-model="endDateMenu"
+          :close-on-content-click="false"
+          :return-value.sync="calendarEndDate"
+          transition="scale-transition"
+          offset-y
+          min-width="auto"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-text-field
+              v-model="calendarEndDate"
+              label="To"
+              prepend-icon="mdi-calendar"
+              readonly
+              v-bind="attrs"
+              v-on="on"
+            ></v-text-field>
+          </template>
+          <v-date-picker
+            :value="rangeMinDate"
+            :min="rangeMinDate"
+            :max="rangeMaxDate"
+            @change="rangeDateSelected"
+            v-model="calendarEndDate"
+            no-title
+            scrollable
+          >
+            <v-spacer></v-spacer>
+            <v-btn text color="primary" @click="endDate = false">
+              Cancel
+            </v-btn>
+            <v-btn
+              text
+              color="primary"
+              @click="$refs.menu1.save(calendarEndDate)"
+            >
+              OK
+            </v-btn>
+          </v-date-picker>
+        </v-menu>
+      </v-flex>
+    </v-layout>
+
     <!-- bottom padding 48px because of fixed footer -->
     <v-container fluid class="pl-6 pr-6 pt-6 pb-12">
       <div class="hello" ref="chartdiv"></div>
@@ -76,7 +123,9 @@ export default {
     dateAxis: null,
     zoomOption: "",
     calendarDate: null,
-    menu: false,
+    calendarEndDate: null,
+    startDateMenu: false,
+    endDateMenu: false,
   }),
   props: {
     highLightModule: {
@@ -105,12 +154,15 @@ export default {
     },
   },
   methods: {
-    rangeDateSelected(dates) {
-      if (dates && dates.length)
-        this.dateAxis.zoomToDates(new Date(dates[0]), new Date(dates[1]));
+    rangeDateSelected() {
+      if (this.calendarDate && this.calendarEndDate)
+        this.dateAxis.zoomToDates(
+          new Date(this.calendarDate),
+          new Date(this.calendarEndDate)
+        );
     },
     zoomOptionSelected(v) {
-        this.calendarDate = null;
+      this.calendarDate = null;
       if (!this.highLightModuleData) return;
       let cagrReturns =
         this.highLightModuleData.data.getModelMetrics.cagrReturns;
@@ -201,16 +253,16 @@ export default {
       dateAxis.periodChangeDateFormats.setKey("day", "MMM dt");
       //dateAxis.renderer.grid.template.location = 0;
       dateAxis.renderer.labels.template.fill = am4core.color("#e59165");
-      dateAxis.renderer.minGridDistance = 30;
+      dateAxis.renderer.minGridDistance = 60;
 
       var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
       valueAxis.tooltip.disabled = true;
       valueAxis.renderer.labels.template.fill = am4core.color("#e59165");
 
-      valueAxis.renderer.minWidth = 60;
+      //valueAxis.renderer.minWidth = 200;
       //let greyHex = "#808080";
-      let modelVersionName;
-      let selectedSeeries;
+      //let modelVersionName;
+      //let selectedSeeries;
       this.modelData.forEach((data, index) => {
         var series = chart.series.push(new am4charts.LineSeries());
         series.dataFields.dateX = "date" + index + 1;
@@ -225,10 +277,11 @@ export default {
           series.strokeWidth = 1;
           //series.fill = am4core.color(greyHex);
           //series.stroke = am4core.color(greyHex);
-        } else {
-          selectedSeeries = series;
-          modelVersionName = versionName;
         }
+        // else {
+        //   selectedSeeries = series;
+        //   modelVersionName = versionName;
+        // }
       });
 
       //   var series = chart.series.push(new am4charts.LineSeries());
@@ -255,14 +308,17 @@ export default {
 
       chart.cursor = new am4charts.XYCursor();
 
-      var scrollbarX = new am4charts.XYChartScrollbar();
-      if (this.highLightModule == modelVersionName)
-        scrollbarX.series.push(selectedSeeries);
-      chart.scrollbarX = scrollbarX;
-      var scrollbarY = new am4charts.XYChartScrollbar();
-      if (this.highLightModule == modelVersionName)
-        scrollbarY.series.push(selectedSeeries);
-      chart.scrollbarY = scrollbarY;
+      //   var scrollbarX = new am4charts.XYChartScrollbar();
+      //   if (this.highLightModule == modelVersionName)
+      //     scrollbarX.series.push(selectedSeeries);
+      //   chart.scrollbarX = scrollbarX;
+      //   var scrollbarY = new am4charts.XYChartScrollbar();
+      //   if (this.highLightModule == modelVersionName)
+      //     scrollbarY.series.push(selectedSeeries);
+      //   chart.scrollbarY = scrollbarY;
+
+      this.addChartGrips(chart);
+      //chart scroll
 
       chart.legend = new am4charts.Legend();
       chart.legend.parent = chart.plotContainer;
@@ -288,9 +344,77 @@ export default {
       //   chart.autoMarginOffset = 20;
       //   chart.mouseWheelZoomEnabled = true;
       //   chart.dataDateFormat = "YYYY-MM-DD";
-      this.$emit('drawComplete')
+      this.$emit("drawComplete");
       this.chart = chart;
     },
+    addChartGrips(chart) {
+      // Add scrollbar
+      chart.scrollbarX = new am4core.Scrollbar();
+      let gripFillColorHex = "#c1c1c1";
+      let strokeColorHex = "#8b8b8b";
+      chart.scrollbarX.startGrip.background.fill = am4core.color(gripFillColorHex);
+      chart.scrollbarX.endGrip.background.fill = am4core.color(gripFillColorHex);
+      chart.scrollbarX.thumb.background.fill = am4core.color(gripFillColorHex);
+
+      chart.scrollbarX.startGrip.icon.stroke = am4core.color(strokeColorHex);
+      chart.scrollbarX.endGrip.icon.stroke = am4core.color(strokeColorHex);
+
+let hoverColorHex = "#8b8b8b";
+let gripColorHex = "#727272";
+      // Applied on hover
+      chart.scrollbarX.startGrip.background.states.getKey(
+        "hover"
+      ).properties.fill = am4core.color(hoverColorHex);
+      chart.scrollbarX.endGrip.background.states.getKey(
+        "hover"
+      ).properties.fill = am4core.color(hoverColorHex);
+      chart.scrollbarX.thumb.background.states.getKey("hover").properties.fill =
+        am4core.color(hoverColorHex);
+
+      // Applied on mouse down
+      chart.scrollbarX.startGrip.background.states.getKey(
+        "down"
+      ).properties.fill = am4core.color(gripColorHex);
+      chart.scrollbarX.endGrip.background.states.getKey(
+        "down"
+      ).properties.fill = am4core.color(gripColorHex);
+      chart.scrollbarX.thumb.background.states.getKey("down").properties.fill =
+        am4core.color(gripColorHex);
+      //chart scroll end
+
+      // Add scrollbar
+      chart.scrollbarY = new am4core.Scrollbar();
+
+      chart.scrollbarY.startGrip.background.fill = am4core.color(gripFillColorHex);
+      chart.scrollbarY.endGrip.background.fill = am4core.color(gripFillColorHex);
+      chart.scrollbarY.thumb.background.fill = am4core.color(gripFillColorHex);
+
+      chart.scrollbarY.startGrip.icon.stroke = am4core.color(strokeColorHex);
+      chart.scrollbarY.endGrip.icon.stroke = am4core.color(strokeColorHex);
+
+      // Applied on hover
+      chart.scrollbarY.startGrip.background.states.getKey(
+        "hover"
+      ).properties.fill = am4core.color(hoverColorHex);
+      chart.scrollbarY.endGrip.background.states.getKey(
+        "hover"
+      ).properties.fill = am4core.color(hoverColorHex);
+      chart.scrollbarY.thumb.background.states.getKey("hover").properties.fill =
+        am4core.color(hoverColorHex);
+
+      // Applied on mouse down
+      chart.scrollbarY.startGrip.background.states.getKey(
+        "down"
+      ).properties.fill = am4core.color(gripColorHex);
+      chart.scrollbarY.endGrip.background.states.getKey(
+        "down"
+      ).properties.fill = am4core.color(gripColorHex);
+      chart.scrollbarY.thumb.background.states.getKey("down").properties.fill =
+        am4core.color(gripColorHex);
+      //chart scroll end
+    },
+
+    // grips for y axis
   },
   mounted() {
     this.drawChart();

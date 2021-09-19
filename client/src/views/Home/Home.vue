@@ -36,7 +36,7 @@ export default {
   },
   methods: {
     emptyModelData() {
-      this.emptyChartData = true;
+      //this.emptyChartData = true;
     },
   },
   components: {
