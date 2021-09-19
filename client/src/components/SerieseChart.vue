@@ -1,11 +1,21 @@
 <template>
   <div>
-    <v-layout>
+    <v-layout row>
+      <v-flex md12 xs12 sm12>
+        <v-autocomplete
+          v-model="highLightModule"
+          label="Select Module To Highlight"
+          :items="moduleNamesArray"
+          clearable
+          class="ml-16 mr-16 mt-10"
+          multiple
+        ></v-autocomplete>
+      </v-flex>
       <v-flex xs5 sm5>
         <v-btn-toggle
           v-model="zoomOption"
           @change="zoomOptionSelected"
-          class="ml-12"
+          class="ml-16"
           color="primary"
           group
         >
@@ -28,10 +38,11 @@
           offset-y
           min-width="auto"
         >
-          <template v-slot:activator="{ on, attrs }">              
+          <template v-slot:activator="{ on, attrs }">
             <v-text-field
               v-model="calendarDate"
               label="From"
+              class="mr-1"
               readonly
               v-bind="attrs"
               v-on="on"
@@ -42,7 +53,7 @@
             no-title
             scrollable
             @change="rangeDateSelected"
-            @input="setStartDate"            
+            @input="setStartDate"
           >
           </v-date-picker>
         </v-menu>
@@ -76,7 +87,6 @@
           </v-date-picker>
         </v-menu>
       </v-flex>
-      <v-flex xs1 sm1></v-flex>
     </v-layout>
 
     <!-- bottom padding 48px because of fixed footer -->
@@ -97,6 +107,8 @@ export default {
   data: () => ({
     chart: null,
     highLightModuleData: null,
+    highLightModule: ["models/290/versions/16"],
+    seriesCreated: [],
     dateAxis: null,
     zoomOption: "",
     calendarDate: null,
@@ -105,11 +117,11 @@ export default {
     endDateMenu: false,
   }),
   props: {
-    highLightModule: {
-      required: false,
-      type: Array,
-      default: () => [],
-    },
+    // highLightModule: {
+    //   required: false,
+    //   type: Array,
+    //   default: () => [],
+    // },
     modelData: {
       required: false,
       type: Array,
@@ -117,6 +129,9 @@ export default {
     },
   },
   computed: {
+    moduleNamesArray() {
+      return this.modelData.map((x) => x.data.getModelMetrics.modelVersionName);
+    },
     rangeMinDate() {
       if (!this.highLightModuleData) return;
       let cagrReturns =
@@ -246,7 +261,7 @@ export default {
       let colorsToPickFrom = [
         "#0064ba",
         "#69cb69",
-        "#ffa72",
+        "#ff33cc",
         "#bb5900",
         "#f5cb42",
         "#f5cb42",
@@ -264,10 +279,11 @@ export default {
         }
         //reduce opacity if highLightModule not matched
         if (!this.highLightModule.includes(versionName)) {
-          //   series.tooltip.background.opacity = 0.2;
-          //   series.strokeOpacity = 0.2;
+          series.tooltip.background.opacity = 0.4;
+          series.strokeOpacity = 0.4;
           series.strokeWidth = 1;
         }
+        this.seriesCreated.push({ series: series, name: versionName });
       });
 
       //   var series = chart.series.push(new am4charts.LineSeries());
@@ -409,7 +425,21 @@ export default {
   mounted() {
     this.drawChart();
   },
-
+  watch: {
+    highLightModule(modules) {
+      this.seriesCreated.forEach((seriesObject) => {
+        if (modules.includes(seriesObject.name)) {
+          seriesObject.series.tooltip.background.opacity = 1;
+          seriesObject.series.strokeOpacity = 1;
+          seriesObject.series.strokeWidth = 3;
+        } else {
+          seriesObject.series.tooltip.background.opacity = 0.4;
+          seriesObject.series.strokeOpacity = 0.4;
+          seriesObject.series.strokeWidth = 1;
+        }
+      });
+    },
+  },
   beforeDestroy() {
     if (this.chart) {
       this.chart.dispose();
