@@ -1,6 +1,6 @@
 <template>
   <div>
-    <SeriesChart highLightModule="chartname" :modelData="modelData" />
+    <SeriesChart highLightModule="models/290/versions/16" :modelData="modelData" />
     <!-- bottom padding 48px because of fixed footer -->
     <!-- <v-container fluid class="pl-6 pr-6 pt-6 pb-12">
       <div class="hello" ref="chartdiv"></div>
@@ -14,6 +14,8 @@
 // import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 import object_data_1 from "../../../../modelVersionData/290_16.json";
 import object_data_2 from "../../../../modelVersionData/291_03.json";
+import object_data_3 from "../../../../modelVersionData/291_01.json";
+import object_data_4 from "../../../../modelVersionData/290_20.json";
 // am4core.useTheme(am4themes_animated);
 import SeriesChart from '../../components/SerieseChart.vue';
 
@@ -21,7 +23,7 @@ export default {
   name: "HelloWorld",
   computed:{
     modelData(){
-      return [object_data_1,object_data_2];
+      return [object_data_1,object_data_2,object_data_3,object_data_4];
     }
   },
   components:{
