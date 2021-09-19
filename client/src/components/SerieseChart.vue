@@ -37,12 +37,13 @@ export default {
       let data = [];
       let data_1 = this.modelData[0].data.getModelMetrics.cagrReturns; //object_data_1.data.getModelMetrics.cagrReturns;
       let data_2 = this.modelData[1].data.getModelMetrics.cagrReturns; //object_data_2.data.getModelMetrics.cagrReturns;
-      for (let i = 0; i < data_1.length; i++) {
+      
+      for (let i = data_1.length-1; i >= 0 ; i--) {
         const date_breaker = new Date(data_1[i].effectiveDate); //.toUTCString();
         const value_breaker = data_1[i].spreadReturn;
         data.push({ date1: date_breaker, value1: value_breaker });
       }
-      for (let i = 0; i < data_2.length; i++) {
+      for (let i = data_2.length-1; i >=0 ; i--) {
         const date_breaker = new Date(data_2[i].effectiveDate); //.toUTCString();
         const value_breaker = data_2[i].spreadReturn;
         data.push({ date2: date_breaker, value2: value_breaker });
