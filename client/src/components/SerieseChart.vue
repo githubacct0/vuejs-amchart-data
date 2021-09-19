@@ -53,9 +53,9 @@
 <script>
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
-import am4themes_animated from "@amcharts/amcharts4/themes/animated";
-import "@amcharts/amcharts4/charts";
-am4core.useTheme(am4themes_animated);
+//import am4themes_animated from "@amcharts/amcharts4/themes/animated";
+//import "@amcharts/amcharts4/charts";
+//am4core.useTheme(am4themes_animated);
 export default {
   name: "HelloWorld",
   data: () => ({
@@ -63,6 +63,7 @@ export default {
     zoomStartDate: "2015-01-21",
     zoomEndDate: "2021-08-20",
     highLightModuleData: null,
+    dateAxis: null,
     zoomOption: "",
     date: null,
     menu: false,
@@ -81,33 +82,41 @@ export default {
   },
   methods: {
     zoomOptionSelected(v) {
+      if (!this.highLightModuleData) return;
       let cagrReturns =
         this.highLightModuleData.data.getModelMetrics.cagrReturns;
       let startDate = new Date(
         cagrReturns[cagrReturns.length - 1].effectiveDate
       );
-      let endDate = startDate;
+      let endDate =  new Date(
+        cagrReturns[cagrReturns.length - 1].effectiveDate
+      );
       switch (v) {
-        case "1m":          
-          endDate.setMonth(startDate.getMonth() + 1);
-          this.chart.zoomToDates(startDate, endDate);
+        case "1m":
+          endDate.setMonth(endDate.getMonth() + 1);
+          this.dateAxis.zoomToDates(startDate, endDate);
           break;
         case "3m":
-          endDate.setMonth(startDate.getMonth() + 3);
-          this.chart.zoomToDates(startDate, endDate);
+          endDate.setMonth(endDate.getMonth() + 3);
+          this.dateAxis.zoomToDates(startDate, endDate);
           break;
         case "6m":
-          endDate.setFullYear(startDate.getFullYear() + 6);
-          this.chart.zoomToDates(startDate, endDate);
+          endDate.setMonth(endDate.getMonth() + 6);
+          this.dateAxis.zoomToDates(startDate, endDate);
           break;
         case "1y":
-          endDate.setFullYear(startDate.getFullYear() + 1);
-          this.chart.zoomToDates(startDate, endDate);
+          endDate.setFullYear(endDate.getFullYear() + 1);
+          this.dateAxis.zoomToDates(startDate, endDate);
           break;
         case "max":
-            this.chart.xAxes.values[0].zoomOut();
+          this.dateAxis.zoomToDates(startDate,new Date(cagrReturns[0].effectiveDate));
+          
           break;
       }
+    },
+    RoundNumber(num, decimalPlaces = 2) {
+      var p = Math.pow(10, decimalPlaces);
+      return Math.round(num * p) / p;
     },
     drawChart() {
       // Themes begin
@@ -124,10 +133,10 @@ export default {
           const value_breaker = cagrReturns[i].spreadReturn;
           data.push({
             ["date" + index + 1]: date_breaker,
-            ["value" + index + 1]: value_breaker,
+            ["value" + index + 1]: this.RoundNumber(value_breaker),
           });
         }
-        if (this.highLightModule != versionName)
+        if (this.highLightModule == versionName)
           this.highLightModuleData = modelData;
       });
 
@@ -146,8 +155,8 @@ export default {
 
       var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
       // Set date label formatting
-      dateAxis.dateFormats.setKey("day", "MMMM dt");
-      dateAxis.periodChangeDateFormats.setKey("day", "MMMM dt");
+      dateAxis.dateFormats.setKey("day", "MMM dt");
+      dateAxis.periodChangeDateFormats.setKey("day", "MMM dt");
       //dateAxis.renderer.grid.template.location = 0;
       dateAxis.renderer.labels.template.fill = am4core.color("#e59165");
       dateAxis.renderer.minGridDistance = 30;
@@ -165,12 +174,13 @@ export default {
         series.dataFields.dateX = "date" + index + 1;
         series.dataFields.valueY = "value" + index + 1;
         let versionName = data.data.getModelMetrics.modelVersionName;
-        series.tooltipText = `${versionName}\nDate:{dateX}\nValue:{valueY}`;
-        series.strokeWidth = 2;
+        series.tooltipText = `{valueY}`;
+        series.strokeWidth = 3;
         //reduce opacity if highLightModule not matched
         if (this.highLightModule != versionName) {
           series.tooltip.background.opacity = 0.2;
           series.strokeOpacity = 0.2;
+          series.strokeWidth = 1;
           //series.fill = am4core.color(greyHex);
           //series.stroke = am4core.color(greyHex);
         } else {
@@ -218,7 +228,7 @@ export default {
 
       dateAxis.renderer.grid.template.strokeOpacity = 0.07;
       valueAxis.renderer.grid.template.strokeOpacity = 0.07;
-
+      this.dateAxis = dateAxis;
       //zoom function need to be developed using veutify buttons
       // on selection of week , month , years need to redredraw chart with zoomed value
       //const zoomStartDate = this.zoomStartDate;
