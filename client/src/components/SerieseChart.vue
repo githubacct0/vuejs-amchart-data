@@ -7,10 +7,11 @@
         color="primary"
         group
       >
-        <v-btn elevation="1" value="week"> Week </v-btn>
-        <v-btn elevation="1" value="month"> Month </v-btn>
-        <v-btn elevation="1" value="year"> Year </v-btn>
-        <v-btn elevation="1" value="years"> 2 Years </v-btn>
+        <v-btn elevation="1" value="1m"> 1M </v-btn>
+        <v-btn elevation="1" value="3m"> 3M </v-btn>
+        <v-btn elevation="1" value="6m"> 6M </v-btn>
+        <v-btn elevation="1" value="1y"> 1Y </v-btn>
+        <v-btn elevation="1" value="max"> MAX </v-btn>
       </v-btn-toggle>
       <v-col cols="12" sm="6" md="4">
         <v-menu
@@ -61,6 +62,7 @@ export default {
     chart: null,
     zoomStartDate: "2015-01-21",
     zoomEndDate: "2021-08-20",
+    highLightModuleData: null,
     zoomOption: "",
     date: null,
     menu: false,
@@ -79,21 +81,31 @@ export default {
   },
   methods: {
     zoomOptionSelected(v) {
-      console.log(v);
+      let cagrReturns =
+        this.highLightModuleData.data.getModelMetrics.cagrReturns;
+      let startDate = new Date(
+        cagrReturns[cagrReturns.length - 1].effectiveDate
+      );
+      let endDate = startDate;
       switch (v) {
-        case "week":
-          var startDate = new Date();
-          var endDate = new Date();
-          this.chart.zoomToDates(
-            am4charts.stringToDate(startDate, "YYYY-MM-DD"),
-            am4charts.stringToDate(endDate, "YYYY-MM-DD")
-          );
+        case "1m":          
+          endDate.setMonth(startDate.getMonth() + 1);
+          this.chart.zoomToDates(startDate, endDate);
           break;
-        case "month":
+        case "3m":
+          endDate.setMonth(startDate.getMonth() + 3);
+          this.chart.zoomToDates(startDate, endDate);
           break;
-        case "year":
+        case "6m":
+          endDate.setFullYear(startDate.getFullYear() + 6);
+          this.chart.zoomToDates(startDate, endDate);
           break;
-        case "years":
+        case "1y":
+          endDate.setFullYear(startDate.getFullYear() + 1);
+          this.chart.zoomToDates(startDate, endDate);
+          break;
+        case "max":
+            this.chart.xAxes.values[0].zoomOut();
           break;
       }
     },
@@ -104,13 +116,19 @@ export default {
       //let data_1 = this.modelData[0].data.getModelMetrics.cagrReturns; //object_data_1.data.getModelMetrics.cagrReturns;
       //let data_2 = this.modelData[1].data.getModelMetrics.cagrReturns; //object_data_2.data.getModelMetrics.cagrReturns;
 
-      this.modelData.forEach((modelData,index) => {
+      this.modelData.forEach((modelData, index) => {
         let cagrReturns = modelData.data.getModelMetrics.cagrReturns;
+        let versionName = modelData.data.getModelMetrics.modelVersionName;
         for (let i = cagrReturns.length - 1; i >= 0; i--) {
           const date_breaker = new Date(cagrReturns[i].effectiveDate); //.toUTCString();
           const value_breaker = cagrReturns[i].spreadReturn;
-          data.push({ ["date"+index+1]: date_breaker, ["value"+index+1]: value_breaker });
+          data.push({
+            ["date" + index + 1]: date_breaker,
+            ["value" + index + 1]: value_breaker,
+          });
         }
+        if (this.highLightModule != versionName)
+          this.highLightModuleData = modelData;
       });
 
       //   for (let i = data_2.length - 1; i >= 0; i--) {
@@ -128,34 +146,33 @@ export default {
 
       var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
       // Set date label formatting
-      //dateAxis.dateFormats.setKey("day", "MMMM dt");
-      //dateAxis.periodChangeDateFormats.setKey("day", "MMMM dt");
+      dateAxis.dateFormats.setKey("day", "MMMM dt");
+      dateAxis.periodChangeDateFormats.setKey("day", "MMMM dt");
       //dateAxis.renderer.grid.template.location = 0;
       dateAxis.renderer.labels.template.fill = am4core.color("#e59165");
-      //dateAxis.renderer.minGridDistance = 30;
+      dateAxis.renderer.minGridDistance = 30;
 
       var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
       valueAxis.tooltip.disabled = true;
       valueAxis.renderer.labels.template.fill = am4core.color("#e59165");
 
       valueAxis.renderer.minWidth = 60;
-      let greyHex = "#808080";
+      //let greyHex = "#808080";
       let modelVersionName;
       let selectedSeeries;
       this.modelData.forEach((data, index) => {
         var series = chart.series.push(new am4charts.LineSeries());
-        series.dataFields.dateX = "date" + index+1;
-        series.dataFields.valueY = "value" + index+1;
+        series.dataFields.dateX = "date" + index + 1;
+        series.dataFields.valueY = "value" + index + 1;
         let versionName = data.data.getModelMetrics.modelVersionName;
         series.tooltipText = `${versionName}\nDate:{dateX}\nValue:{valueY}`;
         series.strokeWidth = 2;
-        console.log('module match',this.highLightModule==versionName);
         //reduce opacity if highLightModule not matched
         if (this.highLightModule != versionName) {
           series.tooltip.background.opacity = 0.2;
-          series.strokeOpacity = 0.3;
-          series.fill = am4core.color(greyHex);
-          series.stroke = am4core.color(greyHex);
+          series.strokeOpacity = 0.2;
+          //series.fill = am4core.color(greyHex);
+          //series.stroke = am4core.color(greyHex);
         } else {
           selectedSeeries = series;
           modelVersionName = versionName;

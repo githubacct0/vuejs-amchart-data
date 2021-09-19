@@ -21,10 +21,10 @@ import SeriesChart from '../../components/SerieseChart.vue';
 
 export default {
   name: "HelloWorld",
-  computed:{
-    modelData(){
-      return [object_data_1,object_data_2,object_data_3,object_data_4];
-    }
+  data:()=>({
+    modelData:[object_data_1,object_data_2,object_data_3,object_data_4]
+  }),
+  computed:{    
   },
   components:{
     SeriesChart
