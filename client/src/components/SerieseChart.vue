@@ -7,10 +7,13 @@
         color="primary"
         group
       >
+        <v-btn elevation="1" value="1w"> 1W </v-btn>
         <v-btn elevation="1" value="1m"> 1M </v-btn>
         <v-btn elevation="1" value="3m"> 3M </v-btn>
         <v-btn elevation="1" value="6m"> 6M </v-btn>
         <v-btn elevation="1" value="1y"> 1Y </v-btn>
+        <v-btn elevation="1" value="2y"> 2Y </v-btn>
+        <v-btn elevation="1" value="3y"> 3Y </v-btn>
         <v-btn elevation="1" value="max"> MAX </v-btn>
       </v-btn-toggle>
       <v-col cols="12" sm="6" md="4">
@@ -88,10 +91,12 @@ export default {
       let startDate = new Date(
         cagrReturns[cagrReturns.length - 1].effectiveDate
       );
-      let endDate =  new Date(
-        cagrReturns[cagrReturns.length - 1].effectiveDate
-      );
+      let endDate = new Date(cagrReturns[cagrReturns.length - 1].effectiveDate);
       switch (v) {
+        case "1w":
+          endDate.setDate(endDate.getDate() + 7);
+          this.dateAxis.zoomToDates(startDate, endDate);
+          break;
         case "1m":
           endDate.setMonth(endDate.getMonth() + 1);
           this.dateAxis.zoomToDates(startDate, endDate);
@@ -108,9 +113,20 @@ export default {
           endDate.setFullYear(endDate.getFullYear() + 1);
           this.dateAxis.zoomToDates(startDate, endDate);
           break;
+        case "2y":
+          endDate.setFullYear(endDate.getFullYear() + 2);
+          this.dateAxis.zoomToDates(startDate, endDate);
+          break;
+        case "3y":
+          endDate.setFullYear(endDate.getFullYear() + 3);
+          this.dateAxis.zoomToDates(startDate, endDate);
+          break;
         case "max":
-          this.dateAxis.zoomToDates(startDate,new Date(cagrReturns[0].effectiveDate));
-          
+          this.dateAxis.zoomToDates(
+            startDate,
+            new Date(cagrReturns[0].effectiveDate)
+          );
+
           break;
       }
     },
