@@ -1,10 +1,11 @@
 <template>
   <div>
     <v-layout>
-      <v-flex xs6 sm6>
+      <v-flex xs5 sm5>
         <v-btn-toggle
           v-model="zoomOption"
           @change="zoomOptionSelected"
+          class="ml-12"
           color="primary"
           group
         >
@@ -18,7 +19,7 @@
           <v-btn elevation="1" value="max"> MAX </v-btn>
         </v-btn-toggle>
       </v-flex>
-      <v-flex xs2 sm2>
+      <v-flex xs1 sm1>
         <v-menu
           ref="menu"
           v-model="startDateMenu"
@@ -31,7 +32,6 @@
             <v-text-field
               v-model="calendarDate"
               label="From"
-              prepend-icon="mdi-calendar"
               readonly
               v-bind="attrs"
               v-on="on"
@@ -47,7 +47,7 @@
           </v-date-picker>
         </v-menu>
       </v-flex>
-      <v-flex xs2 sm2>
+      <v-flex xs1 sm1>
         <v-menu
           ref="menu1"
           v-model="endDateMenu"
@@ -60,7 +60,6 @@
             <v-text-field
               v-model="calendarEndDate"
               label="To"
-              prepend-icon="mdi-calendar"
               readonly
               :disabled="!calendarDate"
               v-bind="attrs"
@@ -77,7 +76,7 @@
           </v-date-picker>
         </v-menu>
       </v-flex>
-      <v-flex xs2 sm2></v-flex>
+      <v-flex xs1 sm1></v-flex>
     </v-layout>
 
     <!-- bottom padding 48px because of fixed footer -->
