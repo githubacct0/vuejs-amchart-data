@@ -288,7 +288,7 @@ export default {
       //   chart.autoMarginOffset = 20;
       //   chart.mouseWheelZoomEnabled = true;
       //   chart.dataDateFormat = "YYYY-MM-DD";
-
+      this.$emit('drawComplete')
       this.chart = chart;
     },
   },

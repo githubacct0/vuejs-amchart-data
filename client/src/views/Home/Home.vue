@@ -1,6 +1,10 @@
 <template>
   <div>
-    <SeriesChart highLightModule="models/290/versions/16" :modelData="modelData" />
+    <SeriesChart
+      highLightModule="models/290/versions/16"
+      :modelData="modelData"
+      @drawComplete="emptyModelData"
+    />
     <!-- bottom padding 48px because of fixed footer -->
     <!-- <v-container fluid class="pl-6 pr-6 pt-6 pb-12">
       <div class="hello" ref="chartdiv"></div>
@@ -13,22 +17,31 @@
 // import * as am4charts from "@amcharts/amcharts4/charts";
 // import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 import object_data_1 from "../../../../modelVersionData/290_16.json";
-// import object_data_2 from "../../../../modelVersionData/291_03.json";
-// import object_data_3 from "../../../../modelVersionData/291_01.json";
-// import object_data_4 from "../../../../modelVersionData/290_20.json";
+import object_data_2 from "../../../../modelVersionData/291_03.json";
+import object_data_3 from "../../../../modelVersionData/291_01.json";
+import object_data_4 from "../../../../modelVersionData/290_20.json";
 // am4core.useTheme(am4themes_animated);
-import SeriesChart from '../../components/SerieseChart.vue';
+import SeriesChart from "../../components/SerieseChart.vue";
 
 export default {
   name: "HelloWorld",
-  data:()=>({
-    modelData:[object_data_1]
+  data: () => ({
+    emptyChartData: false,
   }),
-  computed:{    
-  },
-  components:{
-    SeriesChart
+  computed: {
+    modelData() {
+      if (this.emptyChartData) return [];
+      return [object_data_1, object_data_2, object_data_3, object_data_4];
     },
+  },
+  methods: {
+    emptyModelData() {
+      this.emptyChartData = true;
+    },
+  },
+  components: {
+    SeriesChart,
+  },
   mounted() {
     // let chart = am4core.create(this.$refs.chartdiv, am4charts.XYChart);
     // let data = [];
@@ -44,25 +57,19 @@ export default {
     //   const value_breaker = data_2[i].spreadReturn;
     //   data.push({ date2: date_breaker, value2: value_breaker });
     // }
-
     // // eslint-disable-next-line no-redeclare
     // // for (var i = 0; i < 360; i++) {
     // //   price2 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 100);
     // //   data.push({ date2: new Date(2017, 0, i), price2: price2 });
     // // }
-
     // chart.data = data;
-
     // var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
     // dateAxis.renderer.grid.template.location = 0;
     // dateAxis.renderer.labels.template.fill = am4core.color("#e59165");
-
     // var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
     // valueAxis.tooltip.disabled = true;
     // valueAxis.renderer.labels.template.fill = am4core.color("#e59165");
-
     // valueAxis.renderer.minWidth = 60;
-
     // var series = chart.series.push(new am4charts.LineSeries());
     // // series.name = "2015";
     // series.dataFields.dateX = "date1";
@@ -71,7 +78,6 @@ export default {
     // series.fill = am4core.color("#e59165");
     // series.stroke = am4core.color("#e59165");
     // series.strokeWidth = 3;
-
     // var series2 = chart.series.push(new am4charts.LineSeries());
     // // series2.name = "2017";
     // series2.dataFields.dateX = "date2";
@@ -80,20 +86,15 @@ export default {
     // series2.fill = am4core.color("#dfcc64");
     // series2.stroke = am4core.color("#dfcc64");
     // series2.strokeWidth = 3;
-
     // chart.cursor = new am4charts.XYCursor();
-
     // var scrollbarX = new am4charts.XYChartScrollbar();
     // scrollbarX.series.push(series);
     // chart.scrollbarX = scrollbarX;
-
     // chart.legend = new am4charts.Legend();
     // chart.legend.parent = chart.plotContainer;
     // chart.legend.zIndex = 100;
-
     // dateAxis.renderer.grid.template.strokeOpacity = 0.07;
     // valueAxis.renderer.grid.template.strokeOpacity = 0.07;
-
     // this.chart = chart;
   },
 
