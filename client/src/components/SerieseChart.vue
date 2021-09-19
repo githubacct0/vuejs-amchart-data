@@ -2,15 +2,42 @@
   <div>
     <v-layout row>
       <v-flex md12 xs12 sm12>
-        <v-autocomplete
+        <v-select
           v-model="highLightModule"
           label="Select Module To Highlight"
           :items="moduleNamesArray"
+          item-text="name"
+          item-value="name"
           clearable
           class="ml-16 mr-16 mt-10"
           multiple
-        ></v-autocomplete>
+          chips
+        >
+          <template v-slot:selection="{ item }">
+            <v-chip
+              class="ma-2"
+              close
+              :color="item.color"
+              label
+              @click:close="removeSelection(item)"
+            >
+              <span>{{ item.name }}</span>
+            </v-chip>
+          </template>
+          <template v-slot:item="{ item }">
+            <v-list-item-action>
+              <v-icon v-if="highLightModule.includes(item.name)"
+                >check_box</v-icon
+              >
+              <v-icon v-else>check_box_outline_blank</v-icon>
+            </v-list-item-action>
+            <v-list-item-title :style="`background-color:${item.color}`">
+              <div class="ma-4">{{ item.name }}</div>
+            </v-list-item-title>
+          </template>
+        </v-select>
       </v-flex>
+
       <v-flex xs5 sm5>
         <v-btn-toggle
           v-model="zoomOption"
@@ -25,7 +52,7 @@
           <v-btn elevation="1" value="6m"> 6M </v-btn>
           <v-btn elevation="1" value="1y"> 1Y </v-btn>
           <v-btn elevation="1" value="2y"> 2Y </v-btn>
-          <v-btn elevation="1" value="3y"> 3Y </v-btn>
+          <!-- <v-btn elevation="1" value="3y"> 3Y </v-btn> -->
           <v-btn elevation="1" value="max"> MAX </v-btn>
         </v-btn-toggle>
       </v-flex>
@@ -91,7 +118,7 @@
 
     <!-- bottom padding 48px because of fixed footer -->
     <v-container fluid class="pl-6 pr-6 pt-6 pb-12">
-      <div class="hello" ref="chartdiv"></div>
+      <div class="hello" style="height: 650px" ref="chartdiv"></div>
     </v-container>
   </div>
 </template>
@@ -130,7 +157,18 @@ export default {
   },
   computed: {
     moduleNamesArray() {
-      return this.modelData.map((x) => x.data.getModelMetrics.modelVersionName);
+      let colorsToPickFrom = [
+        "#0064ba",
+        "#69cb69",
+        "#ff33cc",
+        "#bb5900",
+        "#f5cb42",
+        "#f5cb42",
+      ];
+      return this.modelData.map((x, index) => ({
+        name: x.data.getModelMetrics.modelVersionName,
+        color: colorsToPickFrom[index],
+      }));
     },
     rangeMinDate() {
       if (!this.highLightModuleData) return;
@@ -146,6 +184,10 @@ export default {
     },
   },
   methods: {
+    removeSelection(item) {
+        let index = this.highLightModule.indexOf(item.name);
+        this.highLightModule.splice(index,1);
+    },
     setStartDate(date) {
       this.startDateMenu = false;
       this.calendarDate = date;
@@ -216,6 +258,7 @@ export default {
     drawChart() {
       // Themes begin
       let chart = am4core.create(this.$refs.chartdiv, am4charts.XYChart);
+
       let data = [];
       //let data_1 = this.modelData[0].data.getModelMetrics.cagrReturns; //object_data_1.data.getModelMetrics.cagrReturns;
       //let data_2 = this.modelData[1].data.getModelMetrics.cagrReturns; //object_data_2.data.getModelMetrics.cagrReturns;
@@ -322,9 +365,9 @@ export default {
       this.addChartGrips(chart);
       //chart scroll
 
-      chart.legend = new am4charts.Legend();
-      chart.legend.parent = chart.plotContainer;
-      chart.legend.zIndex = 100;
+      //   chart.legend = new am4charts.Legend();
+      //   chart.legend.parent = chart.plotContainer;
+      //   chart.legend.zIndex = 100;
 
       dateAxis.renderer.grid.template.strokeOpacity = 0.07;
       valueAxis.renderer.grid.template.strokeOpacity = 0.07;
@@ -346,6 +389,7 @@ export default {
       //   chart.autoMarginOffset = 20;
       //   chart.mouseWheelZoomEnabled = true;
       //   chart.dataDateFormat = "YYYY-MM-DD";
+      console.log("legend", chart.legend);
       this.$emit("drawComplete");
       this.chart = chart;
     },
