@@ -47,13 +47,6 @@
             no-title
             scrollable
           >
-            <v-spacer></v-spacer>
-            <v-btn text color="primary" @click="startDateMenu = false">
-              Cancel
-            </v-btn>
-            <v-btn text color="primary" @click="$refs.menu.save(calendarDate)">
-              OK
-            </v-btn>
           </v-date-picker>
         </v-menu>
       </v-flex>
@@ -86,17 +79,6 @@
             no-title
             scrollable
           >
-            <v-spacer></v-spacer>
-            <v-btn text color="primary" @click="endDate = false">
-              Cancel
-            </v-btn>
-            <v-btn
-              text
-              color="primary"
-              @click="$refs.menu1.save(calendarEndDate)"
-            >
-              OK
-            </v-btn>
           </v-date-picker>
         </v-menu>
       </v-flex>
