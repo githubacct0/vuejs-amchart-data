@@ -23,12 +23,11 @@
           ref="menu"
           v-model="startDateMenu"
           :close-on-content-click="false"
-          :return-value.sync="calendarDate"
           transition="scale-transition"
           offset-y
           min-width="auto"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template v-slot:activator="{ on, attrs }">              
             <v-text-field
               v-model="calendarDate"
               label="From"
@@ -39,13 +38,11 @@
             ></v-text-field>
           </template>
           <v-date-picker
-            :value="rangeMinDate"
-            :min="rangeMinDate"
-            :max="rangeMaxDate"
-            @change="rangeDateSelected"
             v-model="calendarDate"
             no-title
             scrollable
+            @change="rangeDateSelected"
+            @input="setStartDate"            
           >
           </v-date-picker>
         </v-menu>
@@ -55,7 +52,6 @@
           ref="menu1"
           v-model="endDateMenu"
           :close-on-content-click="false"
-          :return-value.sync="calendarEndDate"
           transition="scale-transition"
           offset-y
           min-width="auto"
@@ -66,16 +62,15 @@
               label="To"
               prepend-icon="mdi-calendar"
               readonly
+              :disabled="!calendarDate"
               v-bind="attrs"
               v-on="on"
             ></v-text-field>
           </template>
           <v-date-picker
-            :value="rangeMinDate"
-            :min="rangeMinDate"
-            :max="rangeMaxDate"
+            :min="calendarDate"
             @change="rangeDateSelected"
-            v-model="calendarEndDate"
+            @input="setEndDate"
             no-title
             scrollable
           >
@@ -114,7 +109,7 @@ export default {
     highLightModule: {
       required: false,
       type: Array,
-      default: ()=>[],
+      default: () => [],
     },
     modelData: {
       required: false,
@@ -137,6 +132,14 @@ export default {
     },
   },
   methods: {
+    setStartDate(date) {
+      this.startDateMenu = false;
+      this.calendarDate = date;
+    },
+    setEndDate(date) {
+      this.endDateMenu = false;
+      this.calendarEndDate = date;
+    },
     rangeDateSelected() {
       if (this.calendarDate && this.calendarEndDate)
         this.dateAxis.zoomToDates(
@@ -146,6 +149,7 @@ export default {
     },
     zoomOptionSelected(v) {
       this.calendarDate = null;
+      this.calendarEndDate = null;
       if (!this.highLightModuleData) return;
       let cagrReturns =
         this.highLightModuleData.data.getModelMetrics.cagrReturns;
@@ -240,7 +244,7 @@ export default {
       valueAxis.renderer.labels.template.fill = am4core.color("#e59165");
 
       //valueAxis.renderer.minWidth = 200;
-      let colorsToPickFrom = [        
+      let colorsToPickFrom = [
         "#0064ba",
         "#69cb69",
         "#ffa72",
@@ -261,8 +265,8 @@ export default {
         }
         //reduce opacity if highLightModule not matched
         if (!this.highLightModule.includes(versionName)) {
-        //   series.tooltip.background.opacity = 0.2;
-        //   series.strokeOpacity = 0.2;
+          //   series.tooltip.background.opacity = 0.2;
+          //   series.strokeOpacity = 0.2;
           series.strokeWidth = 1;
         }
       });
