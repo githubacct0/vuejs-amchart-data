@@ -34,7 +34,6 @@ export default new Vuetify({
         'surface--el-12':"#333333",
         'surface--el-16':"#363636",
         'surface--el-24':"#383838",
-        //custom content
         green: "#2ab71b",
 
       },
@@ -65,7 +64,6 @@ export default new Vuetify({
         'surface--el-12':"#FFFFFF",
         'surface--el-16':"#FFFFFF",
         'surface--el-24':"#FFFFFF",
-        //custom content
         green: "#2ab71b",
       }
     },
