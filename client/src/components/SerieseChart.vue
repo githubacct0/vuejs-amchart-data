@@ -21,25 +21,34 @@
           ref="menu"
           v-model="menu"
           :close-on-content-click="false"
-          :return-value.sync="date"
+          :return-value.sync="calendarDate"
           transition="scale-transition"
           offset-y
           min-width="auto"
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
-              v-model="date"
-              label="Picker in menu"
+              v-model="calendarDate"
+              label="Chart Range Select"
               prepend-icon="mdi-calendar"
               readonly
               v-bind="attrs"
               v-on="on"
             ></v-text-field>
           </template>
-          <v-date-picker v-model="date" no-title scrollable range>
+          <v-date-picker
+            :value="rangeMinDate"
+            :min="rangeMinDate"
+            :max="rangeMaxDate"
+            @change="rangeDateSelected"
+            v-model="calendarDate"
+            no-title
+            scrollable
+            range
+          >
             <v-spacer></v-spacer>
             <v-btn text color="primary" @click="menu = false"> Cancel </v-btn>
-            <v-btn text color="primary" @click="$refs.menu.save(date)">
+            <v-btn text color="primary" @click="$refs.menu.save(calendarDate)">
               OK
             </v-btn>
           </v-date-picker>
@@ -63,12 +72,10 @@ export default {
   name: "HelloWorld",
   data: () => ({
     chart: null,
-    zoomStartDate: "2015-01-21",
-    zoomEndDate: "2021-08-20",
     highLightModuleData: null,
     dateAxis: null,
     zoomOption: "",
-    date: null,
+    calendarDate: null,
     menu: false,
   }),
   props: {
@@ -83,8 +90,27 @@ export default {
       default: () => [],
     },
   },
+  computed: {
+    rangeMinDate() {
+      if (!this.highLightModuleData) return;
+      let cagrReturns =
+        this.highLightModuleData.data.getModelMetrics.cagrReturns;
+      return cagrReturns[cagrReturns.length - 1].effectiveDate;
+    },
+    rangeMaxDate() {
+      if (!this.highLightModuleData) return;
+      let cagrReturns =
+        this.highLightModuleData.data.getModelMetrics.cagrReturns;
+      return cagrReturns[0].effectiveDate;
+    },
+  },
   methods: {
+    rangeDateSelected(dates) {
+      if (dates && dates.length)
+        this.dateAxis.zoomToDates(new Date(dates[0]), new Date(dates[1]));
+    },
     zoomOptionSelected(v) {
+        this.calendarDate = null;
       if (!this.highLightModuleData) return;
       let cagrReturns =
         this.highLightModuleData.data.getModelMetrics.cagrReturns;
@@ -247,8 +273,6 @@ export default {
       this.dateAxis = dateAxis;
       //zoom function need to be developed using veutify buttons
       // on selection of week , month , years need to redredraw chart with zoomed value
-      //const zoomStartDate = this.zoomStartDate;
-      //const zoomEndDate = this.zoomEndDate;
       chart.events.on("ready", function () {
         //date here will
         //dateAxis.zoomToDates(new Date(zoomStartDate), new Date(zoomEndDate));
