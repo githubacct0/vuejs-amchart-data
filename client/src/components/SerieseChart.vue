@@ -258,7 +258,6 @@ export default {
           let bDate = new Date(b.effectiveDate);
           return aDate.getTime() - bDate.getTime();
         });
-        console.log("sort", cagrReturns);
         for (let i = 0; i < cagrReturns.length; i++) {
           const date_breaker = new Date(cagrReturns[i].effectiveDate); //.toUTCString();
           const value_breaker = cagrReturns[i].spreadReturn;
