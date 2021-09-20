@@ -126,9 +126,6 @@
 <script>
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
-//import am4themes_animated from "@amcharts/amcharts4/themes/animated";
-//import "@amcharts/amcharts4/charts";
-//am4core.useTheme(am4themes_animated);
 export default {
   name: "HelloWorld",
   data: () => ({
@@ -144,11 +141,6 @@ export default {
     endDateMenu: false,
   }),
   props: {
-    // highLightModule: {
-    //   required: false,
-    //   type: Array,
-    //   default: () => [],
-    // },
     modelData: {
       required: false,
       type: Array,
@@ -258,8 +250,6 @@ export default {
       let chart = am4core.create(this.$refs.chartdiv, am4charts.XYChart);
 
       let data = [];
-      //let data_1 = this.modelData[0].data.getModelMetrics.cagrReturns; //object_data_1.data.getModelMetrics.cagrReturns;
-      //let data_2 = this.modelData[1].data.getModelMetrics.cagrReturns; //object_data_2.data.getModelMetrics.cagrReturns;
       this.highLightModuleData = this.modelData[0];
       this.modelData.forEach((modelData, index) => {
         let cagrReturns = modelData.data.getModelMetrics.cagrReturns;
@@ -294,7 +284,6 @@ export default {
       valueAxis.tooltip.disabled = true;
       valueAxis.renderer.labels.template.fill = am4core.color("#e59165");
 
-      //valueAxis.renderer.minWidth = 200;
       let colorsToPickFrom = [
         "#0064ba",
         "#69cb69",
