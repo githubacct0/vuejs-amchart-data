@@ -185,8 +185,8 @@ export default {
   },
   methods: {
     removeSelection(item) {
-        let index = this.highLightModule.indexOf(item.name);
-        this.highLightModule.splice(index,1);
+      let index = this.highLightModule.indexOf(item.name);
+      this.highLightModule.splice(index, 1);
     },
     setStartDate(date) {
       this.startDateMenu = false;
@@ -209,43 +209,41 @@ export default {
       if (!this.highLightModuleData) return;
       let cagrReturns =
         this.highLightModuleData.data.getModelMetrics.cagrReturns;
-      let startDate = new Date(
-        cagrReturns[cagrReturns.length - 1].effectiveDate
-      );
-      let endDate = new Date(cagrReturns[cagrReturns.length - 1].effectiveDate);
+      let today = new Date();
+      let startDate = new Date();
       switch (v) {
         case "1w":
-          endDate.setDate(endDate.getDate() + 7);
-          this.dateAxis.zoomToDates(startDate, endDate);
+          startDate.setDate(startDate.getDate() - 7);
+          this.dateAxis.zoomToDates(startDate, today);
           break;
         case "1m":
-          endDate.setMonth(endDate.getMonth() + 1);
-          this.dateAxis.zoomToDates(startDate, endDate);
+          startDate.setMonth(startDate.getMonth() - 1);
+          this.dateAxis.zoomToDates(startDate, today);
           break;
         case "3m":
-          endDate.setMonth(endDate.getMonth() + 3);
-          this.dateAxis.zoomToDates(startDate, endDate);
+          startDate.setMonth(startDate.getMonth() - 3);
+          this.dateAxis.zoomToDates(startDate, today);
           break;
         case "6m":
-          endDate.setMonth(endDate.getMonth() + 6);
-          this.dateAxis.zoomToDates(startDate, endDate);
+          startDate.setMonth(startDate.getMonth() - 6);
+          this.dateAxis.zoomToDates(startDate, today);
           break;
         case "1y":
-          endDate.setFullYear(endDate.getFullYear() + 1);
-          this.dateAxis.zoomToDates(startDate, endDate);
+          startDate.setFullYear(startDate.getFullYear() - 1);
+          this.dateAxis.zoomToDates(startDate, today);
           break;
         case "2y":
-          endDate.setFullYear(endDate.getFullYear() + 2);
-          this.dateAxis.zoomToDates(startDate, endDate);
+          startDate.setFullYear(startDate.getFullYear() - 2);
+          this.dateAxis.zoomToDates(startDate, today);
           break;
         case "3y":
-          endDate.setFullYear(endDate.getFullYear() + 3);
-          this.dateAxis.zoomToDates(startDate, endDate);
+          startDate.setFullYear(startDate.getFullYear() - 3);
+          this.dateAxis.zoomToDates(startDate, today);
           break;
         case "max":
           this.dateAxis.zoomToDates(
-            startDate,
-            new Date(cagrReturns[0].effectiveDate)
+            new Date(cagrReturns[0].effectiveDate),
+            today
           );
 
           break;
@@ -265,7 +263,13 @@ export default {
       this.highLightModuleData = this.modelData[0];
       this.modelData.forEach((modelData, index) => {
         let cagrReturns = modelData.data.getModelMetrics.cagrReturns;
-        for (let i = cagrReturns.length - 1; i >= 0; i--) {
+        cagrReturns = cagrReturns.sort(function (a, b) {
+          let aDate = new Date(a.effectiveDate);
+          let bDate = new Date(b.effectiveDate);
+          return aDate.getTime() - bDate.getTime();
+        });
+        console.log("sort", cagrReturns);
+        for (let i = 0; i < cagrReturns.length; i++) {
           const date_breaker = new Date(cagrReturns[i].effectiveDate); //.toUTCString();
           const value_breaker = cagrReturns[i].spreadReturn;
           data.push({
@@ -275,26 +279,16 @@ export default {
         }
       });
 
-      //   for (let i = data_2.length - 1; i >= 0; i--) {
-      //     const date_breaker = new Date(data_2[i].effectiveDate); //.toUTCString();
-      //     const value_breaker = data_2[i].spreadReturn;
-      //     data.push({ date2: date_breaker, value2: value_breaker });
-      //   }
-      // eslint-disable-next-line no-redeclare
-      // for (var i = 0; i < 360; i++) {
-      //   price2 += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 100);
-      //   data.push({ date2: new Date(2017, 0, i), price2: price2 });
-      // }
-
       chart.data = data;
 
       var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
       // Set date label formatting
-      dateAxis.dateFormats.setKey("day", "MMM dt");
-      dateAxis.periodChangeDateFormats.setKey("day", "MMM dt");
-      //dateAxis.renderer.grid.template.location = 0;
+      //dateAxis.dateFormats.setKey("day", "MMM dt");
+      //dateAxis.periodChangeDateFormats.setKey("day", "MMM dt");
+      dateAxis.renderer.grid.template.location = 0;
+      dateAxis.renderer.minGridDistance = 50;
       dateAxis.renderer.labels.template.fill = am4core.color("#e59165");
-      dateAxis.renderer.minGridDistance = 60;
+      
 
       var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
       valueAxis.tooltip.disabled = true;
@@ -329,68 +323,16 @@ export default {
         this.seriesCreated.push({ series: series, name: versionName });
       });
 
-      //   var series = chart.series.push(new am4charts.LineSeries());
-      //   // series.name = "2015";
-      //   series.dataFields.dateX = "date1";
-      //   series.dataFields.valueY = "value1";
-      //   let modelVersionName =
-      //     this.modelData[0].data.getModelMetrics.modelVersionName;
-      //   series.tooltipText = `${modelVersionName}\nDate:{dateX}\nValue:{valueY}`;
-      //   //series.fill = am4core.color("#e59165");
-      //   //series.stroke = am4core.color("#e59165");
-      //   series.strokeWidth = 2;
-
-      //   var series2 = chart.series.push(new am4charts.LineSeries());
-      //   // series2.name = "2017";
-      //   series2.dataFields.dateX = "date2";
-      //   series2.dataFields.valueY = "value2";
-      //   let modelVersionName2 =
-      //     this.modelData[1].data.getModelMetrics.modelVersionName;
-      //   series2.tooltipText = `${modelVersionName2}\nDate:{dateX}\nValue:{valueY}`;
-      //   //series2.fill = am4core.color("#dfcc64");
-      //   //series2.stroke = am4core.color("#dfcc64");
-      //   series2.strokeWidth = 2;
-
       chart.cursor = new am4charts.XYCursor();
 
-      //   var scrollbarX = new am4charts.XYChartScrollbar();
-      //   if (this.highLightModule == modelVersionName)
-      //     scrollbarX.series.push(selectedSeeries);
-      //   chart.scrollbarX = scrollbarX;
-      //   var scrollbarY = new am4charts.XYChartScrollbar();
-      //   if (this.highLightModule == modelVersionName)
-      //     scrollbarY.series.push(selectedSeeries);
-      //   chart.scrollbarY = scrollbarY;
-
       this.addChartGrips(chart);
-      //chart scroll
-
-      //   chart.legend = new am4charts.Legend();
-      //   chart.legend.parent = chart.plotContainer;
-      //   chart.legend.zIndex = 100;
 
       dateAxis.renderer.grid.template.strokeOpacity = 0.07;
       valueAxis.renderer.grid.template.strokeOpacity = 0.07;
       this.dateAxis = dateAxis;
-      //zoom function need to be developed using veutify buttons
-      // on selection of week , month , years need to redredraw chart with zoomed value
-      chart.events.on("ready", function () {
-        //date here will
-        //dateAxis.zoomToDates(new Date(zoomStartDate), new Date(zoomEndDate));
-      });
 
-      chart.zoomOutButton.align = "left";
-      chart.zoomOutButton.valign = "bottom";
-      chart.zoomOutButton.marginLeft = 10;
-      chart.zoomOutButton.marginBottom = 10;
-      //chart options
-      //   chart.marginRight = 40;
-      //   chart.marginLeft = 40;
-      //   chart.autoMarginOffset = 20;
-      //   chart.mouseWheelZoomEnabled = true;
-      //   chart.dataDateFormat = "YYYY-MM-DD";
-      console.log("legend", chart.legend);
-      this.$emit("drawComplete");
+      chart.svgContainer.autoResize = false;
+
       this.chart = chart;
     },
     addChartGrips(chart) {
@@ -491,9 +433,4 @@ export default {
   },
 };
 </script>
-<style scoped>
-.hello {
-  width: 100%;
-  height: 500px;
-}
-</style>
+
